@@ -7,9 +7,11 @@
     "dev": "node --watch-path=src --watch src/index.js",
     "start": "node src/index.js",
     "seed:admin": "node src/scripts/seedAdmin.js",
-    "check:connections": "node src/scripts/checkConnections.js"
+    "check:connections": "node src/scripts/checkConnections.js",
+    "import:products": "node src/scripts/importProductsFromZip.js"
   },
   "dependencies": {
+    "adm-zip": "^0.6.1",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
     "cors": "^2.8.5",

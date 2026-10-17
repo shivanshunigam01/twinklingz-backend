@@ -1,27 +1,13 @@
 import { Router } from "express";
 import multer from "multer";
-import { Readable } from "stream";
 import { Product } from "../../models/Product.js";
-import { cloudinary, isCloudinaryConfigured } from "../../config/cloudinary.js";
+import { isCloudinaryConfigured } from "../../config/cloudinary.js";
+import { uploadBufferToCloudinary } from "../../lib/cloudinaryUpload.js";
 import { slugify } from "../../utils/slugify.js";
 import { asyncHandler } from "../../middleware/errorHandler.js";
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 8 * 1024 * 1024 } });
-
-function uploadBufferToCloudinary(buffer, filename) {
-  const folder = process.env.CLOUDINARY_FOLDER || "twinklingz";
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: "image", public_id: filename?.replace(/\.[^.]+$/, "") },
-      (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
-      },
-    );
-    Readable.from(buffer).pipe(stream);
-  });
-}
 
 router.get(
   "/",

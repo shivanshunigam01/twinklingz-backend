@@ -12,6 +12,7 @@ Standalone backend for the **Twinklingz storefront** and **admin panel** (`twink
 npm install
 npm run check:connections   # optional: test MongoDB + Cloudinary
 npm run seed:admin          # first admin user
+npm run import:products -- --category Necklaces path/to/products.zip   # bulk upload images to Cloudinary + MongoDB
 npm run dev
 ```
 
