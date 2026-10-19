@@ -6,6 +6,7 @@ import { getRazorpayKeyId } from "../config/razorpay.js";
 import { generateOrderNumber } from "../utils/orderNumber.js";
 import { asyncHandler } from "../middleware/errorHandler.js";
 import { createRazorpayOrder, verifyRazorpayPaymentSignature } from "../utils/razorpayPayment.js";
+import { markOrderPaid } from "../lib/markOrderPaid.js";
 
 const router = Router();
 
@@ -176,10 +177,10 @@ router.post(
     }
     const order = await Order.findOne({ razorpayOrderId: razorpay_order_id });
     if (!order) return res.status(404).json({ error: "Order not found for this payment" });
-    order.paymentStatus = "paid";
-    order.razorpayPaymentId = razorpay_payment_id;
-    order.razorpaySignature = razorpay_signature;
-    await order.save();
+    await markOrderPaid(order, {
+      razorpayPaymentId: razorpay_payment_id,
+      razorpaySignature: razorpay_signature,
+    });
     res.json({ ok: true, success: true, orderNumber: order.orderNumber, paymentStatus: order.paymentStatus });
   }),
 );

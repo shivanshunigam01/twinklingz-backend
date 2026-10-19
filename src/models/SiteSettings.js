@@ -20,7 +20,7 @@ const defaultSettings = {
     instagramHandle: "@Twinklingz",
     instagramUrl: "https://www.instagram.com/",
   },
-  returnRefundPolicy: `All sales are final. We do not accept returns, refunds, or exchanges except where required by applicable law or where an incorrect or defective item is delivered.`,
+  returnRefundPolicy: "All sales are final. No returns, refunds, or exchanges.",
   storyCopy: {
     headline: "Jewellery for the stories only you can tell.",
     body: `We bring you elegant, timeless, and trend-forward jewellery designed to complement every style and occasion.

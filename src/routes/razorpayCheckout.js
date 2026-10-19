@@ -3,6 +3,7 @@ import { body, validationResult } from "express-validator";
 import { Order } from "../models/Order.js";
 import { asyncHandler } from "../middleware/errorHandler.js";
 import { createRazorpayOrder, verifyRazorpayPaymentSignature } from "../utils/razorpayPayment.js";
+import { markOrderPaid } from "../lib/markOrderPaid.js";
 
 const router = Router();
 
@@ -51,11 +52,11 @@ router.post(
     }
 
     const order = await Order.findOne({ razorpayOrderId: razorpay_order_id });
-    if (order && order.paymentStatus !== "paid") {
-      order.paymentStatus = "paid";
-      order.razorpayPaymentId = razorpay_payment_id;
-      order.razorpaySignature = razorpay_signature;
-      await order.save();
+    if (order) {
+      await markOrderPaid(order, {
+        razorpayPaymentId: razorpay_payment_id,
+        razorpaySignature: razorpay_signature,
+      });
     }
 
     res.json({
