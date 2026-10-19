@@ -31,6 +31,7 @@ const clientUrls = (process.env.CLIENT_URL || "http://localhost:5173")
 
 const isDev = process.env.NODE_ENV !== "production";
 const localDevOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+const twinklingzStorefrontOrigin = /^https:\/\/(www\.)?twinklingz\.com$/;
 
 app.use(helmet());
 app.use(
@@ -40,7 +41,11 @@ app.use(
         callback(null, true);
         return;
       }
-      if (clientUrls.includes(origin) || (isDev && localDevOrigin.test(origin))) {
+      if (
+        clientUrls.includes(origin) ||
+        twinklingzStorefrontOrigin.test(origin) ||
+        (isDev && localDevOrigin.test(origin))
+      ) {
         callback(null, origin);
         return;
       }
