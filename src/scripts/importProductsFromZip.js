@@ -8,26 +8,12 @@ import { resolveMongoUri } from "../config/db.js";
 import { Product } from "../models/Product.js";
 import { slugify } from "../utils/slugify.js";
 import { uploadBufferToCloudinary } from "../lib/cloudinaryUpload.js";
+import {
+  categoryFromZipParts,
+  defaultCategoryForZipFilename,
+} from "../lib/productCategoryFromZip.js";
 
 const IMAGE_EXT = /\.(png|jpe?g|webp|gif)$/i;
-
-const FOLDER_CATEGORY = {
-  bracelet: "Bracelets",
-  bracelets: "Bracelets",
-  earing: "Earrings",
-  earring: "Earrings",
-  earrings: "Earrings",
-  necklace: "Necklaces",
-  necklaces: "Necklaces",
-};
-
-function categoryFromZipPath(parts, fallback) {
-  for (const part of parts) {
-    const key = part.toLowerCase();
-    if (FOLDER_CATEGORY[key]) return FOLDER_CATEGORY[key];
-  }
-  return fallback;
-}
 
 function listProductImages(zipPath, defaultCategory) {
   const zip = new AdmZip(zipPath);
@@ -42,7 +28,7 @@ function listProductImages(zipPath, defaultCategory) {
     if (!IMAGE_EXT.test(fileName)) continue;
     if (!groups.has(productName)) {
       groups.set(productName, {
-        category: categoryFromZipPath(parts, defaultCategory),
+        category: categoryFromZipParts(parts, defaultCategory),
         files: [],
       });
     }
@@ -195,12 +181,7 @@ await mongoose.connect(uri);
 
 let totals = { created: 0, skipped: 0, updated: 0, errors: 0 };
 for (const zipPath of zips) {
-  const lower = zipPath.toLowerCase();
-  const cat = lower.includes("necklace")
-    ? "Necklaces"
-    : lower.includes("first-lot")
-      ? "Earrings"
-      : category;
+  const cat = defaultCategoryForZipFilename(zipPath, category);
   const result = await importZip(zipPath, cat, dryRun, syncCategories);
   totals.created += result.created;
   totals.skipped += result.skipped;

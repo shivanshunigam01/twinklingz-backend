@@ -29,10 +29,23 @@ const clientUrls = (process.env.CLIENT_URL || "http://localhost:5173")
   .map((s) => s.trim())
   .filter(Boolean);
 
+const isDev = process.env.NODE_ENV !== "production";
+const localDevOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+
 app.use(helmet());
 app.use(
   cors({
-    origin: clientUrls,
+    origin(origin, callback) {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      if (clientUrls.includes(origin) || (isDev && localDevOrigin.test(origin))) {
+        callback(null, origin);
+        return;
+      }
+      callback(null, false);
+    },
     credentials: true,
   }),
 );

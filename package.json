@@ -8,7 +8,9 @@
     "start": "node src/index.js",
     "seed:admin": "node src/scripts/seedAdmin.js",
     "check:connections": "node src/scripts/checkConnections.js",
-    "import:products": "node src/scripts/importProductsFromZip.js"
+    "import:products": "node src/scripts/importProductsFromZip.js",
+    "categories:from-zips": "node src/scripts/buildProductCategoriesFromZips.js",
+    "categories:sync": "node src/scripts/syncProductCategories.js"
   },
   "dependencies": {
     "adm-zip": "^0.6.1",
