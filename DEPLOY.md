@@ -70,21 +70,31 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-### Wrong app on port 5000 (NOT_FOUND on `/api/health`)
+### Shared VPS: wrong app on port 5000
 
-If this returns Patliputra-style JSON (`success: false`, `NOT_FOUND`) instead of `{"ok":true,"service":"twinklingz-api"}`, **another Node app is bound to port 5000**, not this repo.
+If `curl http://127.0.0.1:5000/api/health` returns Patliputra-style `NOT_FOUND`, **port 5000 belongs to another PM2 app** (e.g. `patliputra-api`). Do **not** stop other clients’ APIs.
+
+Run Twinklingz on a **dedicated port** (default **5010**):
 
 ```bash
-sudo ss -tlnp | grep ':5000'
-# or: sudo lsof -i :5000
-pm2 list                    # stop/delete any old API (e.g. patliputra)
-pm2 delete all              # only if nothing else on this VPS needs those processes
-cd /var/www/twinklingz-backend && git pull && npm ci
-pm2 start ecosystem.config.cjs
-curl -s http://127.0.0.1:5000/api/health
+# In /var/www/twinklingz-backend/.env
+PORT=5010
+
+git pull && npm ci
+pm2 delete twinklingz-api 2>/dev/null; pm2 start ecosystem.config.cjs
+pm2 save
+curl -s http://127.0.0.1:5010/api/health   # must show twinklingz-api
 ```
 
-Only one process can use `PORT=5000`. Nginx `proxy_pass` must point at whichever port **twinklingz-api** uses.
+**Nginx** for `api.twinklingz.com` must proxy to the **same** port:
+
+```nginx
+proxy_pass http://127.0.0.1:5010;
+```
+
+Edit the live site (often `/etc/nginx/sites-available/api.twinklingz.com`), fix any `proxy_pass http://127.0.0.1:5000`, then `sudo nginx -t && sudo systemctl reload nginx`.
+
+See `deploy/nginx-api.twinklingz.com.conf`.
 
 ### Fix **502 Bad Gateway**
 

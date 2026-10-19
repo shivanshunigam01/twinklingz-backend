@@ -1,4 +1,8 @@
 /** PM2: from repo root run `pm2 start ecosystem.config.cjs` */
+require("dotenv").config();
+
+const port = Number(process.env.PORT) || 5010;
+
 module.exports = {
   apps: [
     {
@@ -11,7 +15,7 @@ module.exports = {
       max_memory_restart: "400M",
       env: {
         NODE_ENV: "production",
-        PORT: 5000,
+        PORT: port,
       },
     },
   ],
