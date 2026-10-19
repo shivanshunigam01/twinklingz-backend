@@ -36,3 +36,52 @@ docker run --env-file .env -p 5000:5000 twinklingz-api
 ```
 
 After deploy, rebuild/redeploy the **frontend** only if you change `VITE_API_URL`.
+
+## VPS + nginx + PM2 (Ubuntu)
+
+On the server (`/var/www/twinklingz-backend`):
+
+```bash
+git pull
+npm ci
+cp .env.example .env   # or keep your existing .env
+# edit .env — MONGODB_URI, JWT_SECRET, CLIENT_URL, etc.
+
+# 1) Test Node directly (must return JSON, not hang)
+curl -s http://127.0.0.1:5000/api/health
+
+# If that fails, run manually and read the error:
+PORT=5000 NODE_ENV=production node src/index.js
+```
+
+Run under PM2:
+
+```bash
+npm install -g pm2   # if needed
+pm2 start ecosystem.config.cjs
+pm2 save
+pm2 startup          # follow the printed command
+```
+
+Nginx must proxy to the same port as `PORT` (default **5000**). Example: `deploy/nginx-api.twinklingz.com.conf`.
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### Fix **502 Bad Gateway**
+
+502 means **nginx is up but nothing is answering on `proxy_pass`**.
+
+| Check | Command |
+|--------|---------|
+| Is Node listening? | `ss -tlnp \| grep 5000` or `curl -s http://127.0.0.1:5000/api/health` |
+| PM2 running? | `pm2 status` → `twinklingz-api` should be **online** |
+| PM2 logs | `pm2 logs twinklingz-api --lines 50` |
+| Wrong nginx port | `grep proxy_pass /etc/nginx/sites-enabled/*` — must be `http://127.0.0.1:5000` if `PORT=5000` |
+| MongoDB blocked startup (old builds) | `git pull` — server now listens even if MongoDB fails; fix Atlas IP allowlist / `MONGODB_URI` |
+
+**MongoDB Atlas:** add your VPS public IP (or `0.0.0.0/0` temporarily) under Network Access, or connections fail and login routes return errors.
+
+After `curl http://127.0.0.1:5000/api/health` works on the server, `curl https://api.twinklingz.com/api/health` should work too.

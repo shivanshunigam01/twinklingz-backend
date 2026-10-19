@@ -93,8 +93,11 @@ app.use((req, res) => {
 
 app.use(errorHandler);
 
-await connectDb();
+app.listen(port, "0.0.0.0", () => {
+  console.log(`[api] Twinklingz backend listening on http://0.0.0.0:${port}`);
+});
 
-app.listen(port, () => {
-  console.log(`[api] Twinklingz backend listening on http://localhost:${port}`);
+connectDb().catch((err) => {
+  console.error("[api] MongoDB connection failed:", err.message);
+  console.error("[api] API is up for /api/health; DB routes will fail until MongoDB is reachable.");
 });
