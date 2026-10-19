@@ -70,6 +70,22 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
+### Wrong app on port 5000 (NOT_FOUND on `/api/health`)
+
+If this returns Patliputra-style JSON (`success: false`, `NOT_FOUND`) instead of `{"ok":true,"service":"twinklingz-api"}`, **another Node app is bound to port 5000**, not this repo.
+
+```bash
+sudo ss -tlnp | grep ':5000'
+# or: sudo lsof -i :5000
+pm2 list                    # stop/delete any old API (e.g. patliputra)
+pm2 delete all              # only if nothing else on this VPS needs those processes
+cd /var/www/twinklingz-backend && git pull && npm ci
+pm2 start ecosystem.config.cjs
+curl -s http://127.0.0.1:5000/api/health
+```
+
+Only one process can use `PORT=5000`. Nginx `proxy_pass` must point at whichever port **twinklingz-api** uses.
+
 ### Fix **502 Bad Gateway**
 
 502 means **nginx is up but nothing is answering on `proxy_pass`**.
