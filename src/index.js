@@ -59,8 +59,16 @@ app.use(express.json({ limit: "2mb" }));
 
 configureCloudinary();
 
+function healthPayload() {
+  return { ok: true, service: "twinklingz-api" };
+}
+
+app.get("/", (_req, res) => {
+  res.json(healthPayload());
+});
+
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, service: "twinklingz-api" });
+  res.json(healthPayload());
 });
 
 app.use("/api/auth", authRoutes);
@@ -75,6 +83,13 @@ app.use("/api/admin/orders", requireAdmin, adminOrders);
 app.use("/api/admin/submissions", requireAdmin, adminSubmissions);
 app.use("/api/admin/settings", requireAdmin, adminSettings);
 app.use("/api/admin/reports", requireAdmin, adminReports);
+
+app.use((req, res) => {
+  res.status(404).json({
+    error: `Route not found: ${req.method} ${req.originalUrl}`,
+    service: "twinklingz-api",
+  });
+});
 
 app.use(errorHandler);
 

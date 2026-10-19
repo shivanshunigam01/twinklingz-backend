@@ -18,6 +18,8 @@ npm run dev
 
 API base URL: `http://localhost:5000/api`
 
+Production: deploy this repo to `api.twinklingz.com` and confirm `curl -s https://api.twinklingz.com/api/health` returns `"service":"twinklingz-api"`. See [DEPLOY.md](./DEPLOY.md).
+
 Point the frontend `.env` at:
 
 ```env
