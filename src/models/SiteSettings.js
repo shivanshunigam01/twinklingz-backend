@@ -22,13 +22,9 @@ const defaultSettings = {
   },
   returnRefundPolicy: "All sales are final. No returns, refunds, or exchanges.",
   storyCopy: {
-    headline: "Jewellery for the stories only you can tell.",
-    body: `We bring you elegant, timeless, and trend-forward jewellery designed to complement every style and occasion.
-
-From everyday essentials to statement pieces, each collection is carefully curated to help you shine with confidence.
-
-Our mission is to offer beautiful jewellery that combines quality, affordability, and sophistication.`,
-    highlight: "Because every sparkle tells a story. ✨",
+    headline: "A Journey of Purpose, Passion & Sparkle",
+    body: `Every beautiful journey begins with a dream. Twinklingz By Priya Kaur brings together elegant, timeless jewellery chosen with an eye for beauty, detail, and timeless appeal — so every woman can find a piece that feels uniquely hers.`,
+    highlight: "Every woman has a story. Let yours sparkle.",
   },
 };
 
