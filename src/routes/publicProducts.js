@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { Product } from "../models/Product.js";
 import { asyncHandler } from "../middleware/errorHandler.js";
+import { normalizeProductImages } from "../lib/productImages.js";
 
 const router = Router();
 
 function toPublicProduct(doc) {
   const p = doc.toObject ? doc.toObject() : doc;
+  const imgs = normalizeProductImages(p);
   return {
     id: p._id?.toString() ?? p.id,
     slug: p.slug,
@@ -18,9 +20,9 @@ function toPublicProduct(doc) {
     badge: p.badge,
     rating: p.rating,
     reviews: p.reviews,
-    image: p.image,
-    altImage: p.altImage,
-    images: p.images,
+    image: imgs.image,
+    altImage: imgs.altImage,
+    images: imgs.images,
     inStock: p.inStock,
     featured: p.featured,
   };

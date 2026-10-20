@@ -12,6 +12,7 @@ import {
   listProductsFromRoots,
   parseProductFolderName,
 } from "../lib/folderCatalog.js";
+import { applyImageFields } from "../lib/productImages.js";
 
 const IMAGE_EXT = /\.(png|jpe?g|webp|gif)$/i;
 
@@ -174,9 +175,12 @@ async function main() {
 
       if (existing) {
         Object.assign(existing, payload);
+        applyImageFields(existing);
         await existing.save();
       } else {
-        await Product.create(payload);
+        const created = await Product.create(payload);
+        applyImageFields(created);
+        await created.save();
       }
 
       skuCategories[sku] = { category: item.category, folder: item.productDir };
