@@ -35,6 +35,7 @@ router.get(
     if (req.query.category) filter.category = String(req.query.category);
     if (req.query.featured === "true") filter.featured = true;
     const products = await Product.find(filter).sort({ createdAt: -1 });
+    res.set("Cache-Control", "public, max-age=120, stale-while-revalidate=600");
     res.json({ products: products.map(toPublicProduct) });
   }),
 );
@@ -44,6 +45,7 @@ router.get(
   asyncHandler(async (req, res) => {
     const product = await Product.findOne({ slug: req.params.slug, published: true });
     if (!product) return res.status(404).json({ error: "Product not found" });
+    res.set("Cache-Control", "public, max-age=120, stale-while-revalidate=600");
     res.json({ product: toPublicProduct(product) });
   }),
 );
