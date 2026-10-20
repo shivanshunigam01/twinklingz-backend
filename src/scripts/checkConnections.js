@@ -1,5 +1,6 @@
 import "dotenv/config";
 import mongoose from "mongoose";
+import nodemailer from "nodemailer";
 import { cloudinary, configureCloudinary, isCloudinaryConfigured } from "../config/cloudinary.js";
 import { resolveMongoUri } from "../config/db.js";
 
@@ -38,6 +39,32 @@ async function checkCloudinary() {
   }
 }
 
+async function checkSmtp() {
+  const host = process.env.SMTP_HOST?.trim();
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS?.trim();
+  if (!host || !user || !pass) {
+    console.log("[smtp] SKIP — set SMTP_HOST, SMTP_USER, SMTP_PASS for order emails");
+    return;
+  }
+  const port = Number(process.env.SMTP_PORT) || 587;
+  const secure = process.env.SMTP_SECURE === "true" || port === 465;
+  try {
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure,
+      auth: { user, pass },
+    });
+    await transporter.verify();
+    console.log("[smtp] OK —", user, "via", host);
+  } catch (err) {
+    console.error("[smtp] FAIL —", err.message);
+    exitCode = 1;
+  }
+}
+
 await checkMongo();
 await checkCloudinary();
+await checkSmtp();
 process.exit(exitCode);

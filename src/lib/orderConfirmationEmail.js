@@ -1,9 +1,9 @@
 import nodemailer from "nodemailer";
+import { getOrCreateSiteSettings } from "../models/SiteSettings.js";
+import { enrichOrdersWithImages } from "./enrichOrderItems.js";
+import { formatInr } from "./money.js";
+import { buildOrderInvoicePdf } from "./orderInvoicePdf.js";
 import { getStorefrontUrl } from "./storefrontUrl.js";
-
-function formatInr(amount) {
-  return `₹${Number(amount).toLocaleString("en-IN")}`;
-}
 
 function isSmtpConfigured() {
   return Boolean(
@@ -69,7 +69,7 @@ function buildHtml(order) {
     <tr><td style="background:#fff;padding:28px;border:1px solid #e8ddd6;">
       <p style="margin:0 0 8px;font-size:14px;color:#5c4a42;">Your order is confirmed</p>
       <p style="margin:0;font-size:22px;"><strong>${order.orderNumber}</strong></p>
-      <p style="margin:16px 0 0;font-size:14px;line-height:1.6;color:#5c4a42;">Payment received. We are preparing your jewellery with care.</p>
+      <p style="margin:16px 0 0;font-size:14px;line-height:1.6;color:#5c4a42;">Payment received. We are preparing your jewellery with care. Your invoice is attached as a PDF.</p>
       <h2 style="margin:28px 0 12px;font-size:16px;font-weight:600;letter-spacing:0.06em;">ITEMS</h2>
       <table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
         <tr style="color:#888;font-size:12px;">
@@ -117,6 +117,8 @@ ${addr.landmark ? `${addr.landmark}\n` : ""}${addr.city}, ${addr.state} ${addr.p
 Phone: ${order.customer.mobile}
 
 Track your order: ${trackUrl}
+
+Your tax invoice is attached to this email as a PDF.
 `;
 }
 
@@ -136,12 +138,28 @@ export async function sendOrderConfirmationEmail(order) {
   if (!to) return false;
 
   const transporter = getTransporter();
+  const [enriched] = await enrichOrdersWithImages([order]);
+  const settings = await getOrCreateSiteSettings();
+  const settingsPlain = settings.toObject ? settings.toObject() : settings;
+  let pdfAttachment;
+  try {
+    const pdf = await buildOrderInvoicePdf(enriched, settingsPlain);
+    pdfAttachment = {
+      filename: `Twinklingz-Invoice-${order.orderNumber}.pdf`,
+      content: pdf,
+      contentType: "application/pdf",
+    };
+  } catch (err) {
+    console.error("[email] Invoice PDF generation failed:", err.message);
+  }
+
   await transporter.sendMail({
     from: `"Twinklingz" <${from}>`,
     to,
-    subject: `Order confirmed — ${order.orderNumber}`,
+    subject: `Order confirmed — ${order.orderNumber} (invoice attached)`,
     text: buildText(order),
     html: buildHtml(order),
+    attachments: pdfAttachment ? [pdfAttachment] : [],
   });
 
   console.log("[email] Order confirmation sent to", to, "for", order.orderNumber);

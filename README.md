@@ -36,7 +36,7 @@ For production, set `CLIENT_URL` to your deployed storefront origin (comma-separ
 | Health | GET | `/api/health` |
 | Admin login | POST | `/api/auth/login` |
 
-After Razorpay payment is verified, the API emails the customer an order confirmation when SMTP env vars are set (see `.env.example`).
+After Razorpay payment is verified, the API emails the customer an order confirmation **with a PDF tax invoice attached** when SMTP env vars are set (see `.env.example`). Admins can download the same PDF from **Admin → Orders**.
 | Products (public) | GET | `/api/products`, `/api/products/:slug` |
 | Site settings (public) | GET | `/api/settings` |
 | Form submissions | POST | `/api/submissions` |

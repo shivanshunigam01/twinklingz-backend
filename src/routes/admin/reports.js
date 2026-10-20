@@ -38,6 +38,44 @@ router.get(
       { $sort: { _id: 1 } },
     ]);
 
+    const [
+      productsByCategory,
+      ordersByPaymentStatus,
+      ordersByFulfillment,
+      topProducts,
+      inStockCount,
+      featuredCount,
+    ] = await Promise.all([
+      Product.aggregate([
+        { $match: { published: true } },
+        { $group: { _id: "$category", count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+      ]),
+      Order.aggregate([{ $group: { _id: "$paymentStatus", count: { $sum: 1 } } }]),
+      Order.aggregate([
+        { $match: { paymentStatus: "paid" } },
+        { $group: { _id: "$fulfillmentStatus", count: { $sum: 1 } } },
+      ]),
+      Order.aggregate([
+        { $match: { paymentStatus: "paid" } },
+        { $unwind: "$items" },
+        {
+          $group: {
+            _id: "$items.slug",
+            name: { $first: "$items.name" },
+            quantity: { $sum: "$items.quantity" },
+            revenue: { $sum: { $multiply: ["$items.unitPrice", "$items.quantity"] } },
+          },
+        },
+        { $sort: { quantity: -1 } },
+        { $limit: 8 },
+      ]),
+      Product.countDocuments({ published: true, inStock: true }),
+      Product.countDocuments({ published: true, featured: true }),
+    ]);
+
+    const avgOrderValue = paidOrders > 0 ? Math.round(revenue / paidOrders) : 0;
+
     res.json({
       summary: {
         productCount,
@@ -45,9 +83,16 @@ router.get(
         paidOrders,
         revenue,
         unreadSubmissions,
+        avgOrderValue,
+        inStockCount,
+        featuredCount,
       },
       salesByDay,
       recentOrders,
+      productsByCategory,
+      ordersByPaymentStatus,
+      ordersByFulfillment,
+      topProducts,
     });
   }),
 );

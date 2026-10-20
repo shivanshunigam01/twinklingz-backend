@@ -20,11 +20,12 @@ curl -s https://api.twinklingz.com/api/health
 ## Deploy (any host)
 
 1. Build/run with Docker, or `npm install && npm start` on the server.
-2. Set environment variables from `.env.example` (MongoDB, `JWT_SECRET`, `CLIENT_URL`, Razorpay, Cloudinary, etc.).
-3. Set `NODE_ENV=production` and `PORT` (default `5000`).
-4. Run `npm run seed:admin` once against production MongoDB if no admin exists.
-5. Point DNS **`api.twinklingz.com`** to this process (reverse proxy with HTTPS).
-6. Re-check the curl commands above, then test:
+2. Set environment variables from `.env.example` (MongoDB, `JWT_SECRET`, `CLIENT_URL`, Razorpay, Cloudinary, **SMTP**, etc.).
+3. **Order emails:** configure Gmail SMTP so paid orders email the customer a PDF invoice — see [docs/SMTP-GMAIL.md](docs/SMTP-GMAIL.md). Test with `npm run test:smtp -- you@gmail.com`.
+4. Set `NODE_ENV=production` and `PORT` (default `5000`).
+5. Run `npm run seed:admin` once against production MongoDB if no admin exists.
+6. Point DNS **`api.twinklingz.com`** to this process (reverse proxy with HTTPS).
+7. Re-check the curl commands above, then test:
 
    `POST https://api.twinklingz.com/api/auth/login`
 

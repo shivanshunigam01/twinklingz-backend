@@ -7,6 +7,7 @@ import { generateOrderNumber } from "../utils/orderNumber.js";
 import { asyncHandler } from "../middleware/errorHandler.js";
 import { createRazorpayOrder, verifyRazorpayPaymentSignature } from "../utils/razorpayPayment.js";
 import { markOrderPaid } from "../lib/markOrderPaid.js";
+import { isCloudinaryUrl, normalizeProductImages } from "../lib/productImages.js";
 
 const router = Router();
 
@@ -39,6 +40,7 @@ router.post(
 
       if (product && product.published) {
         const unitPrice = product.price;
+        const imgs = normalizeProductImages(product);
         subtotal += unitPrice * qty;
         lineItems.push({
           productId: product._id,
@@ -47,7 +49,7 @@ router.post(
           sku: product.sku,
           quantity: qty,
           unitPrice,
-          image: product.image,
+          image: imgs.image || imgs.images[0] || "",
         });
         continue;
       }
@@ -58,13 +60,15 @@ router.post(
           return res.status(400).json({ error: "Invalid unitPrice for cart item" });
         }
         subtotal += unitPrice * qty;
+        const image =
+          typeof item.image === "string" && isCloudinaryUrl(item.image) ? item.image : "";
         lineItems.push({
           slug: item.slug,
           name: String(item.name),
           sku: item.sku,
           quantity: qty,
           unitPrice,
-          image: item.image,
+          image,
         });
         continue;
       }
