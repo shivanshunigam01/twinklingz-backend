@@ -9,6 +9,7 @@
     "seed:admin": "node src/scripts/seedAdmin.js",
     "check:connections": "node src/scripts/checkConnections.js",
     "import:products": "node src/scripts/importProductsFromZip.js",
+    "import:folders": "node src/scripts/importProductsFromFolders.js",
     "categories:from-zips": "node src/scripts/buildProductCategoriesFromZips.js",
     "categories:sync": "node src/scripts/syncProductCategories.js"
   },

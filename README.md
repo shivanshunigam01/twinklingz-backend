@@ -13,6 +13,7 @@ npm install
 npm run check:connections   # optional: test MongoDB + Cloudinary
 npm run seed:admin          # first admin user
 npm run import:products -- --category Necklaces path/to/products.zip   # bulk upload images to Cloudinary + MongoDB
+npm run import:folders -- --replace-all --copy-catalog-to ../twinklingz-sparkle-suite/public/catalog "C:/path/wetransfer_folder1" "C:/path/wetransfer_folder2"
 npm run dev
 ```
 
