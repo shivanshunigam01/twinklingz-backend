@@ -17,13 +17,14 @@ import { applyImageFields } from "../lib/productImages.js";
 const IMAGE_EXT = /\.(png|jpe?g|webp|gif)$/i;
 
 function parseArgs(argv) {
-  const args = { roots: [], replaceAll: false, dryRun: false, pricesOnly: false, copyCatalogTo: "" };
+  const args = { roots: [], replaceAll: false, dryRun: false, pricesOnly: false, copyCatalogTo: "", category: "" };
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--replace-all") args.replaceAll = true;
     else if (a === "--dry-run") args.dryRun = true;
     else if (a === "--prices-only") args.pricesOnly = true;
     else if (a === "--copy-catalog-to" && argv[i + 1]) args.copyCatalogTo = argv[++i];
+    else if (a === "--category" && argv[i + 1]) args.category = argv[++i];
     else if (!a.startsWith("-")) args.roots.push(a);
   }
   return args;
@@ -65,15 +66,19 @@ function writeCategoriesJson(copyRoot, skuCategories) {
 }
 
 async function main() {
-  const { roots, replaceAll, dryRun, pricesOnly, copyCatalogTo } = parseArgs(process.argv);
+  const { roots, replaceAll, dryRun, pricesOnly, copyCatalogTo, category: forceCategory } = parseArgs(process.argv);
   if (!roots.length) {
     console.error(
-      "Usage: node src/scripts/importProductsFromFolders.js --replace-all [--copy-catalog-to ../twinklingz-sparkle-suite/public/catalog] <folder1> [folder2...]",
+      "Usage: node src/scripts/importProductsFromFolders.js [--category \"Traditional Wear\"] [--replace-all] [--copy-catalog-to ../twinklingz-sparkle-suite/public/catalog] <folder1> [folder2...]",
     );
     process.exit(1);
   }
 
-  const items = listProductsFromRoots(roots);
+  let items = listProductsFromRoots(roots);
+  if (forceCategory.trim()) {
+    const label = forceCategory.trim();
+    items = items.map((item) => ({ ...item, category: label }));
+  }
   console.log(`[import] found ${items.length} products in ${roots.length} folder(s)`);
   if (!items.length) process.exit(1);
 
