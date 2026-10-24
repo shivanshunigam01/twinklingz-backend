@@ -30,7 +30,7 @@ router.post(
     if (!secret) {
       return res.status(503).json({ error: "JWT_SECRET is not configured on the server" });
     }
-    const token = jwt.sign({ email: user.email }, secret, {
+    const token = jwt.sign({ email: user.email, role: "admin" }, secret, {
       subject: user._id.toString(),
       expiresIn: process.env.JWT_EXPIRES_IN || "7d",
     });

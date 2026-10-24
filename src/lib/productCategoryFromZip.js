@@ -18,6 +18,10 @@ export const FOLDER_CATEGORY = {
   rin: "Rings",
   set: "Jewellery Sets",
   sets: "Jewellery Sets",
+  traditional: "Traditional Wear",
+  "traditional-wear": "Traditional Wear",
+  "traditional-wears": "Traditional Wear",
+  ethnic: "Traditional Wear",
 };
 
 /**
@@ -43,6 +47,7 @@ export function defaultCategoryForZipFilename(zipPath, cliDefault = "Necklaces")
   if (lower.includes("earring") || lower.includes("earing")) return "Earrings";
   if (lower.includes("ring") || lower.includes("_rin_") || lower.includes("-rin-")) return "Rings";
   if (lower.includes("first-lot")) return "Earrings";
+  if (lower.includes("traditional") || lower.includes("ethnic")) return "Traditional Wear";
   return cliDefault;
 }
 

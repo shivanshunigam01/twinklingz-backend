@@ -11,6 +11,9 @@ export function requireAdmin(req, res, next) {
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET not configured");
     const payload = jwt.verify(token, secret);
+    if (payload.role && payload.role !== "admin") {
+      return res.status(403).json({ error: "Admin access required" });
+    }
     req.admin = { id: payload.sub, email: payload.email };
     next();
   } catch {

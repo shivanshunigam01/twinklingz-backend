@@ -12,6 +12,7 @@ export function categoryFromFolderName(folderName) {
   if (key.includes("neclace") || key.includes("necklace")) return "Necklaces";
   if (key.includes("ring")) return "Rings";
   if (key.includes("set")) return "Jewellery Sets";
+  if (key.includes("traditional") || key.includes("ethnic")) return "Traditional Wear";
   return "Necklaces";
 }
 

@@ -35,6 +35,11 @@ For production, set `CLIENT_URL` to your deployed storefront origin (comma-separ
 |------|--------|------|
 | Health | GET | `/api/health` |
 | Admin login | POST | `/api/auth/login` |
+| Customer register | POST | `/api/customer/register` |
+| Customer login | POST | `/api/customer/login` |
+| Product reviews (public) | GET | `/api/products/:slug/reviews` |
+| Submit review (customer JWT) | POST | `/api/reviews` |
+| Moderate reviews (admin) | GET/PATCH/DELETE | `/api/admin/reviews` |
 
 After Razorpay payment is verified, the API emails the customer an order confirmation **with a PDF tax invoice attached** when SMTP env vars are set (see `.env.example`). Admins can download the same PDF from **Admin → Orders**.
 | Products (public) | GET | `/api/products`, `/api/products/:slug` |
