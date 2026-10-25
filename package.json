@@ -12,7 +12,8 @@
     "import:products": "node src/scripts/importProductsFromZip.js",
     "import:folders": "node src/scripts/importProductsFromFolders.js",
     "categories:from-zips": "node src/scripts/buildProductCategoriesFromZips.js",
-    "categories:sync": "node src/scripts/syncProductCategories.js"
+    "categories:sync": "node src/scripts/syncProductCategories.js",
+    "bump:prices": "node src/scripts/bumpPrices.js"
   },
   "dependencies": {
     "adm-zip": "^0.6.1",
