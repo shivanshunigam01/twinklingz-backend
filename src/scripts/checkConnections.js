@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import nodemailer from "nodemailer";
 import { cloudinary, configureCloudinary, isCloudinaryConfigured } from "../config/cloudinary.js";
 import { resolveMongoUri } from "../config/db.js";
+import { createRazorpayOrder } from "../utils/razorpayPayment.js";
+import { getRazorpayKeyId, isRazorpayConfigured, razorpayKeyHint } from "../config/razorpay.js";
 
 let exitCode = 0;
 
@@ -64,7 +66,28 @@ async function checkSmtp() {
   }
 }
 
+async function checkRazorpay() {
+  if (!isRazorpayConfigured()) {
+    console.log("[razorpay] SKIP — set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in .env");
+    exitCode = 1;
+    return;
+  }
+  const hint = razorpayKeyHint();
+  try {
+    await createRazorpayOrder({
+      amount: 100,
+      currency: "INR",
+      receipt: `chk${Date.now()}`.slice(0, 40),
+    });
+    console.log("[razorpay] OK —", hint?.mode, getRazorpayKeyId().slice(0, 18) + "…");
+  } catch (err) {
+    console.error("[razorpay] FAIL —", err.message);
+    exitCode = 1;
+  }
+}
+
 await checkMongo();
 await checkCloudinary();
+await checkRazorpay();
 await checkSmtp();
 process.exit(exitCode);

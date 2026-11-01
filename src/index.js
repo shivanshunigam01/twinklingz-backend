@@ -5,6 +5,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import { connectDb } from "./config/db.js";
 import { configureCloudinary } from "./config/cloudinary.js";
+import { isRazorpayConfigured, razorpayKeyHint } from "./config/razorpay.js";
 import { requireAdmin } from "./middleware/auth.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
@@ -72,6 +73,14 @@ app.get("/", (_req, res) => {
 
 app.get("/api/health", (_req, res) => {
   res.json(healthPayload());
+});
+
+app.get("/api/health/payments", (_req, res) => {
+  res.json({
+    ok: true,
+    razorpayConfigured: isRazorpayConfigured(),
+    razorpay: razorpayKeyHint(),
+  });
 });
 
 app.use("/api/auth", authRoutes);
