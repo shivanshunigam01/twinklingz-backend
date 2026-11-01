@@ -8,11 +8,14 @@ import { asyncHandler } from "../middleware/errorHandler.js";
 import { createRazorpayOrder, verifyRazorpayPaymentSignature } from "../utils/razorpayPayment.js";
 import { markOrderPaid } from "../lib/markOrderPaid.js";
 import { isCloudinaryUrl, normalizeProductImages } from "../lib/productImages.js";
+import { requireCustomer } from "../middleware/customerAuth.js";
+import { isAllowedCustomerEmail } from "../utils/customerEmail.js";
 
 const router = Router();
 
 router.post(
   "/",
+  requireCustomer,
   body("customer.fullName").notEmpty(),
   body("customer.email").isEmail(),
   body("customer.mobile").notEmpty(),
@@ -27,6 +30,13 @@ router.post(
       return res.status(400).json({ error: "Invalid order", details: errors.array() });
     }
     const { customer, shippingAddress, items, paymentMethod } = req.body;
+
+    if (!isAllowedCustomerEmail(customer.email)) {
+      return res.status(400).json({ error: "Use a real email address for your order." });
+    }
+    if (customer.email.trim().toLowerCase() !== req.customer.email.toLowerCase()) {
+      return res.status(403).json({ error: "Order email must match your signed-in account." });
+    }
 
     const lineItems = [];
     let subtotal = 0;
@@ -84,6 +94,7 @@ router.post(
 
     const order = await Order.create({
       orderNumber,
+      customerUserId: req.customer.id,
       customer,
       shippingAddress,
       items: lineItems,

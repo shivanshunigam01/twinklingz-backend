@@ -5,6 +5,7 @@ import { body, validationResult } from "express-validator";
 import { CustomerUser } from "../models/CustomerUser.js";
 import { asyncHandler } from "../middleware/errorHandler.js";
 import { requireCustomer } from "../middleware/customerAuth.js";
+import { isAllowedCustomerEmail } from "../utils/customerEmail.js";
 
 const router = Router();
 
@@ -28,6 +29,9 @@ router.post(
       return res.status(400).json({ error: "Invalid registration details", details: errors.array() });
     }
     const { email, password, name } = req.body;
+    if (!isAllowedCustomerEmail(email)) {
+      return res.status(400).json({ error: "Use a real email address, not a test or placeholder inbox." });
+    }
     const existing = await CustomerUser.findOne({ email });
     if (existing) {
       return res.status(409).json({ error: "An account with this email already exists" });

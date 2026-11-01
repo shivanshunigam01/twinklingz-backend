@@ -16,6 +16,7 @@ const lineItemSchema = new mongoose.Schema(
 const orderSchema = new mongoose.Schema(
   {
     orderNumber: { type: String, required: true, unique: true },
+    customerUserId: { type: mongoose.Schema.Types.ObjectId, ref: "CustomerUser" },
     customer: {
       fullName: { type: String, required: true },
       email: { type: String, required: true },
