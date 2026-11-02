@@ -50,7 +50,7 @@ router.post(
       const qty = Math.max(1, Number(item.quantity) || 1);
 
       if (product && product.published) {
-        const unitPrice = applyDiwaliUnitPrice(product.price, product.mrp);
+        const unitPrice = applyDiwaliUnitPrice(product.price);
         const imgs = normalizeProductImages(product);
         subtotal += unitPrice * qty;
         lineItems.push({

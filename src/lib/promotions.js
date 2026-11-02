@@ -6,23 +6,32 @@ export const DIWALI_SALE = {
   label: "Diwali Festive Sale",
 };
 
-export function listPriceBeforePromo(dbPrice, dbMrp) {
-  const price = Number(dbPrice) || 0;
-  const mrp = Number(dbMrp) || 0;
-  return mrp > price ? mrp : price;
+/** Catalog selling price in MongoDB (unchanged during promo). */
+export function catalogOriginalPrice(dbPrice) {
+  return Number(dbPrice) || 0;
 }
 
-export function applyDiwaliUnitPrice(dbPrice, dbMrp) {
-  if (!DIWALI_SALE.active) return Number(dbPrice) || 0;
-  const list = listPriceBeforePromo(dbPrice, dbMrp);
-  return Math.round(list * (1 - DIWALI_SALE.percentOff / 100));
+export function applyDiwaliUnitPrice(dbPrice) {
+  const original = catalogOriginalPrice(dbPrice);
+  if (!DIWALI_SALE.active) return original;
+  return Math.round(original * (1 - DIWALI_SALE.percentOff / 100));
 }
 
+/** Public API + checkout: `price` = offer, `mrp` = struck-through original. DB rows stay unchanged. */
 export function publicPriceFields(dbPrice, dbMrp) {
-  const list = listPriceBeforePromo(dbPrice, dbMrp);
-  const sale = applyDiwaliUnitPrice(dbPrice, dbMrp);
-  if (!DIWALI_SALE.active || sale >= list) {
-    return { price: list, mrp: dbMrp ?? undefined };
+  const original = catalogOriginalPrice(dbPrice);
+  const storedMrp = Number(dbMrp) || 0;
+
+  if (!DIWALI_SALE.active) {
+    return {
+      price: original,
+      mrp: storedMrp > original ? storedMrp : undefined,
+    };
   }
-  return { price: sale, mrp: list };
+
+  const offer = applyDiwaliUnitPrice(dbPrice);
+  return {
+    price: offer,
+    mrp: original,
+  };
 }
