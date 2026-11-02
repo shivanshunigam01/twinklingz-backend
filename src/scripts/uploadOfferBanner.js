@@ -1,6 +1,8 @@
 /**
- * One-time: upload local offer banner JPG to Cloudinary and save URL in SiteSettings.
- * Usage: node src/scripts/uploadOfferBanner.js "C:\\path\\to\\banner.jpg"
+ * Upload local offer banner to Cloudinary and save URL in SiteSettings.
+ * Usage:
+ *   node src/scripts/uploadOfferBanner.js "C:\\path\\to\\desktop.jpg"
+ *   node src/scripts/uploadOfferBanner.js --mobile "C:\\path\\to\\mobile.jpg"
  */
 import fs from "fs";
 import "dotenv/config";
@@ -9,9 +11,10 @@ import { configureCloudinary, isCloudinaryConfigured } from "../config/cloudinar
 import { uploadBufferToCloudinary } from "../lib/cloudinaryUpload.js";
 import { getOrCreateSiteSettings } from "../models/SiteSettings.js";
 
-const filePath = process.argv[2];
+const mobile = process.argv[2] === "--mobile";
+const filePath = mobile ? process.argv[3] : process.argv[2];
 if (!filePath) {
-  console.error("Usage: node src/scripts/uploadOfferBanner.js <path-to-image.jpg>");
+  console.error("Usage: node src/scripts/uploadOfferBanner.js [--mobile] <path-to-image.jpg>");
   process.exit(1);
 }
 
@@ -24,10 +27,14 @@ if (!isCloudinaryConfigured()) {
 const buffer = fs.readFileSync(filePath);
 await connectDb();
 const result = await uploadBufferToCloudinary(buffer, filePath, {
-  publicId: "marketing/diwali-offer-banner",
+  publicId: mobile ? "marketing/diwali-offer-banner-mobile" : "marketing/diwali-offer-banner",
 });
 const settings = await getOrCreateSiteSettings();
-settings.offerBannerImage = result.secure_url;
+if (mobile) {
+  settings.offerBannerImageMobile = result.secure_url;
+} else {
+  settings.offerBannerImage = result.secure_url;
+}
 await settings.save();
-console.log("[offer-banner] saved:", result.secure_url);
+console.log(`[offer-banner${mobile ? "-mobile" : ""}] saved:`, result.secure_url);
 process.exit(0);

@@ -19,6 +19,7 @@ router.get(
         returnRefundPolicy: settings.returnRefundPolicy,
         storyCopy: settings.storyCopy,
         offerBannerImage: settings.offerBannerImage || "",
+        offerBannerImageMobile: settings.offerBannerImageMobile || "",
       },
     });
   }),

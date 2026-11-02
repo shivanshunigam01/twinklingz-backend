@@ -27,6 +27,7 @@ const defaultSettings = {
     highlight: "Every woman has a story. Let yours sparkle.",
   },
   offerBannerImage: "",
+  offerBannerImageMobile: "",
 };
 
 const siteSettingsSchema = new mongoose.Schema(
@@ -58,6 +59,7 @@ const siteSettingsSchema = new mongoose.Schema(
     },
     /** Cloudinary URL for homepage offer strip (below hero). */
     offerBannerImage: { type: String, default: "" },
+    offerBannerImageMobile: { type: String, default: "" },
   },
   { timestamps: true },
 );
