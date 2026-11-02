@@ -10,6 +10,7 @@ import { markOrderPaid } from "../lib/markOrderPaid.js";
 import { isCloudinaryUrl, normalizeProductImages } from "../lib/productImages.js";
 import { requireCustomer } from "../middleware/customerAuth.js";
 import { isAllowedCustomerEmail } from "../utils/customerEmail.js";
+import { applyDiwaliUnitPrice } from "../lib/promotions.js";
 
 const router = Router();
 
@@ -49,7 +50,7 @@ router.post(
       const qty = Math.max(1, Number(item.quantity) || 1);
 
       if (product && product.published) {
-        const unitPrice = product.price;
+        const unitPrice = applyDiwaliUnitPrice(product.price, product.mrp);
         const imgs = normalizeProductImages(product);
         subtotal += unitPrice * qty;
         lineItems.push({

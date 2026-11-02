@@ -2,12 +2,14 @@ import { Router } from "express";
 import { Product } from "../models/Product.js";
 import { asyncHandler } from "../middleware/errorHandler.js";
 import { normalizeProductImages } from "../lib/productImages.js";
+import { publicPriceFields } from "../lib/promotions.js";
 
 const router = Router();
 
 function toPublicProduct(doc) {
   const p = doc.toObject ? doc.toObject() : doc;
   const imgs = normalizeProductImages(p);
+  const pricing = publicPriceFields(p.price, p.mrp);
   return {
     id: p._id?.toString() ?? p.id,
     slug: p.slug,
@@ -15,8 +17,8 @@ function toPublicProduct(doc) {
     name: p.name,
     category: p.category,
     description: p.description,
-    price: p.price,
-    mrp: p.mrp,
+    price: pricing.price,
+    mrp: pricing.mrp,
     badge: p.badge,
     rating: p.rating,
     reviews: p.reviews,
