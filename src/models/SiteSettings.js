@@ -26,6 +26,7 @@ const defaultSettings = {
     body: `Every beautiful journey begins with a dream. Twinklingz By Priya Kaur brings together elegant, timeless jewellery chosen with an eye for beauty, detail, and timeless appeal — so every woman can find a piece that feels uniquely hers.`,
     highlight: "Every woman has a story. Let yours sparkle.",
   },
+  offerBannerImage: "",
 };
 
 const siteSettingsSchema = new mongoose.Schema(
@@ -55,6 +56,8 @@ const siteSettingsSchema = new mongoose.Schema(
       body: String,
       highlight: String,
     },
+    /** Cloudinary URL for homepage offer strip (below hero). */
+    offerBannerImage: { type: String, default: "" },
   },
   { timestamps: true },
 );

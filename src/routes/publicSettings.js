@@ -18,6 +18,7 @@ router.get(
         social: settings.social,
         returnRefundPolicy: settings.returnRefundPolicy,
         storyCopy: settings.storyCopy,
+        offerBannerImage: settings.offerBannerImage || "",
       },
     });
   }),
