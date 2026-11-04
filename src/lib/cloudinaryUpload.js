@@ -7,9 +7,10 @@ export function uploadBufferToCloudinary(buffer, filename, options = {}) {
     options.publicId?.trim() ||
     filename?.replace(/\.[^.]+$/, "") ||
     `img-${Date.now()}`;
+  const resourceType = options.resourceType === "video" ? "video" : "image";
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: "image", public_id: baseId },
+      { folder, resource_type: resourceType, public_id: baseId },
       (err, result) => {
         if (err) reject(err);
         else resolve(result);

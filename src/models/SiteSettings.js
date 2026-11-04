@@ -28,6 +28,8 @@ const defaultSettings = {
   },
   offerBannerImage: "",
   offerBannerImageMobile: "",
+  heroVideoDesktop: "",
+  heroVideoMobile: "",
 };
 
 const siteSettingsSchema = new mongoose.Schema(
@@ -60,6 +62,9 @@ const siteSettingsSchema = new mongoose.Schema(
     /** Cloudinary URL for homepage offer strip (below hero). */
     offerBannerImage: { type: String, default: "" },
     offerBannerImageMobile: { type: String, default: "" },
+    /** Cloudinary MP4 URLs for homepage hero background video. */
+    heroVideoDesktop: { type: String, default: "" },
+    heroVideoMobile: { type: String, default: "" },
   },
   { timestamps: true },
 );

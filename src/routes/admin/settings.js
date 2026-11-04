@@ -6,7 +6,14 @@ import { isCloudinaryConfigured } from "../../config/cloudinary.js";
 import { uploadBufferToCloudinary } from "../../lib/cloudinaryUpload.js";
 
 const router = Router();
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 12 * 1024 * 1024 } });
+const uploadImage = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 12 * 1024 * 1024 },
+});
+const uploadVideo = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 40 * 1024 * 1024 },
+});
 
 router.get(
   "/",
@@ -31,6 +38,8 @@ router.put(
       "storyCopy",
       "offerBannerImage",
       "offerBannerImageMobile",
+      "heroVideoDesktop",
+      "heroVideoMobile",
     ];
     for (const key of allowedRoots) {
       if (req.body[key] !== undefined) settings[key] = req.body[key];
@@ -42,7 +51,7 @@ router.put(
 
 router.post(
   "/offer-banner",
-  upload.single("image"),
+  uploadImage.single("image"),
   asyncHandler(async (req, res) => {
     if (!isCloudinaryConfigured()) {
       return res.status(503).json({ error: "Cloudinary is not configured on the server" });
@@ -67,7 +76,7 @@ router.post(
 
 router.post(
   "/offer-banner-mobile",
-  upload.single("image"),
+  uploadImage.single("image"),
   asyncHandler(async (req, res) => {
     if (!isCloudinaryConfigured()) {
       return res.status(503).json({ error: "Cloudinary is not configured on the server" });
@@ -81,6 +90,58 @@ router.post(
       publicId: `marketing/offer-banner-mobile-${Date.now()}`,
     });
     settings.offerBannerImageMobile = result.secure_url;
+    await settings.save();
+
+    res.json({
+      url: result.secure_url,
+      settings,
+    });
+  }),
+);
+
+router.post(
+  "/hero-video-desktop",
+  uploadVideo.single("video"),
+  asyncHandler(async (req, res) => {
+    if (!isCloudinaryConfigured()) {
+      return res.status(503).json({ error: "Cloudinary is not configured on the server" });
+    }
+    if (!req.file?.buffer?.length) {
+      return res.status(400).json({ error: "Choose an MP4 video file to upload" });
+    }
+
+    const settings = await getOrCreateSiteSettings();
+    const result = await uploadBufferToCloudinary(req.file.buffer, req.file.originalname, {
+      publicId: `marketing/hero-desktop-${Date.now()}`,
+      resourceType: "video",
+    });
+    settings.heroVideoDesktop = result.secure_url;
+    await settings.save();
+
+    res.json({
+      url: result.secure_url,
+      settings,
+    });
+  }),
+);
+
+router.post(
+  "/hero-video-mobile",
+  uploadVideo.single("video"),
+  asyncHandler(async (req, res) => {
+    if (!isCloudinaryConfigured()) {
+      return res.status(503).json({ error: "Cloudinary is not configured on the server" });
+    }
+    if (!req.file?.buffer?.length) {
+      return res.status(400).json({ error: "Choose an MP4 video file to upload" });
+    }
+
+    const settings = await getOrCreateSiteSettings();
+    const result = await uploadBufferToCloudinary(req.file.buffer, req.file.originalname, {
+      publicId: `marketing/hero-mobile-${Date.now()}`,
+      resourceType: "video",
+    });
+    settings.heroVideoMobile = result.secure_url;
     await settings.save();
 
     res.json({

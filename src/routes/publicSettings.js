@@ -20,6 +20,8 @@ router.get(
         storyCopy: settings.storyCopy,
         offerBannerImage: settings.offerBannerImage || "",
         offerBannerImageMobile: settings.offerBannerImageMobile || "",
+        heroVideoDesktop: settings.heroVideoDesktop || "",
+        heroVideoMobile: settings.heroVideoMobile || "",
       },
     });
   }),
