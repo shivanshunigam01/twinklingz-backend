@@ -17,6 +17,7 @@ import publicSettings from "./routes/publicSettings.js";
 import submissions from "./routes/submissions.js";
 import ordersPublic from "./routes/ordersPublic.js";
 import razorpayCheckout from "./routes/razorpayCheckout.js";
+import publicLlms from "./routes/publicLlms.js";
 
 import adminProducts from "./routes/admin/products.js";
 import adminOrders from "./routes/admin/orders.js";
@@ -87,6 +88,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/customer", customerAuth);
 app.use("/api", reviewsPublic);
 app.use("/api/products", publicProducts);
+app.use("/api", publicLlms);
 app.use("/api/settings", publicSettings);
 app.use("/api/submissions", submissions);
 app.use("/api/orders", ordersPublic);
